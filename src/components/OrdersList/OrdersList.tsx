@@ -42,7 +42,7 @@ const rows = [
   createData('BTC-BCHABC', 'Buy', 0.12070008, 0.05, false, false),
 ];
 
-const OrderList = () => {
+const OrdersList = () => {
   const classes = useStyles();
 
   return (
@@ -85,4 +85,4 @@ const OrderList = () => {
   );
 };
 
-export default OrderList;
+export default OrdersList;
