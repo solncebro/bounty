@@ -63,7 +63,7 @@ const Chart = () => {
         </RadioGroup>
       </Grid>
       <Grid item>
-        <TableContainer component={'div'}>
+        <TableContainer component="div">
           <Table className={classes.root} size="small">
             <TableHead>
               <TableRow>

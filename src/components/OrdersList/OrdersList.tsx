@@ -46,7 +46,7 @@ const OrdersList = () => {
   const classes = useStyles();
 
   return (
-    <TableContainer component={'div'}>
+    <TableContainer component="div">
       <Table className={classes.root} size="small">
         <TableHead>
           <TableRow>

@@ -34,23 +34,19 @@ const Header = () => {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={5} className={classes.innerContainer}>
-        <Grid container className={classes.innerContainer}>
-          <Grid item xs={7}>
-            <TradingViewWidget
-              symbol="BINANCE:BTCUSDT"
-              locale="ru"
-              interval="30"
-              hide_top_toolbar={true}
-              hide_legend={true}
-              save_image={false}
-              autosize
-            />
-          </Grid>
-          <Grid item xs={5}>
-            <LogsDisplay />
-          </Grid>
-        </Grid>
+      <Grid item xs={3} className={classes.innerContainer}>
+        <TradingViewWidget
+          symbol="BINANCE:BTCUSDT"
+          locale="ru"
+          interval="30"
+          hide_top_toolbar={true}
+          hide_legend={true}
+          save_image={false}
+          autosize
+        />
+      </Grid>
+      <Grid item xs={2}>
+        <LogsDisplay />
       </Grid>
     </Grid>
   );

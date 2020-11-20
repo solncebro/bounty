@@ -46,12 +46,12 @@ const BalanceList = () => {
   return (
     <Grid container direction="column" alignItems="center" spacing={2}>
       <Grid item>
-        <Button variant="contained" color={'primary'}>
+        <Button variant="contained" color="primary">
           Estimated balance
         </Button>
       </Grid>
       <Grid item>
-        <TableContainer component={'div'}>
+        <TableContainer component="div">
           <Table className={classes.root} size="small">
             <TableHead>
               <TableRow>
