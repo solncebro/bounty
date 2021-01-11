@@ -4,7 +4,7 @@ import { makeStyles, Theme, withStyles } from '@material-ui/core/styles';
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    border: '1px solid #e0e0e0',
+    border: `1px solid ${theme.palette.divider}`,
     heigth: '10px',
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.action.hover,
@@ -14,7 +14,7 @@ const StyledTableRow = withStyles((theme) => ({
 
 const StyledTableCell = withStyles((theme) => ({
   root: {
-    border: '1px solid #e0e0e0',
+    border: `1px solid ${theme.palette.divider}`,
     padding: '6px',
     '&:last-child': {
       padding: '6px',
@@ -24,7 +24,7 @@ const StyledTableCell = withStyles((theme) => ({
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
-    border: '1px solid #e0e0e0',
+    border: `1px solid ${theme.palette.divider}`,
   },
   checkBox: { padding: '0px' },
 }));

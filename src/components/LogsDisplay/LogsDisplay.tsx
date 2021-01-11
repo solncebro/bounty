@@ -37,7 +37,7 @@ const LogsDisplay = () => {
         <TableContainer component={Paper} classes={{ root: classes.table }}>
           <Table stickyHeader>
             {logs.map(({ time, message }) => (
-              <TableRow>
+              <TableRow key={time}>
                 <TableCell classes={{ root: classes.cell }}>{`${time} ${message}`}</TableCell>
               </TableRow>
             ))}
