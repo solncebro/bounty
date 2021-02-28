@@ -1,57 +1,41 @@
-import React, { useState } from 'react';
-import { Box, Button, ButtonGroup, Grid, makeStyles, Theme } from '@material-ui/core';
+import React from 'react';
+import { Button, Grid } from '@material-ui/core';
 import { Section } from '../shared/Section';
-import clsx from 'clsx';
 import { MultiOrderForm } from './MultiOrderForm';
-
-const useStyles = makeStyles((theme: Theme) => ({
-  buy: {
-    color: theme.palette.common.white,
-    background: theme.palette.success.main,
-    '&:hover': {
-      background: theme.palette.success.main,
-    },
-  },
-  sell: {
-    color: theme.palette.common.white,
-    background: theme.palette.secondary.main,
-    '&:hover': {
-      background: theme.palette.secondary.main,
-    },
-  },
-}));
+import { MultiOrderTable } from './MultiOrderTable';
+import { $Orders, resetOrders } from './MultiOrder.effector';
+import { useStore } from 'effector-react';
 
 export const MultiOrder = () => {
-  const classes = useStyles();
-  const [isBuyAction, setBuyAction] = useState(true);
+  const $orders = useStore($Orders);
 
   return (
     <Section title="Multi Order">
       <Grid container spacing={1} direction="column">
         <Grid item>
-          <Box>
-            <ButtonGroup disableElevation fullWidth>
-              <Button
-                variant="outlined"
-                className={clsx(isBuyAction && classes.buy)}
-                onClick={() => setBuyAction(true)}
-              >
-                Buy
-              </Button>
-              <Button
-                variant="outlined"
-                className={clsx(!isBuyAction && classes.sell)}
-                onClick={() => setBuyAction(false)}
-              >
-                Sell
-              </Button>
-            </ButtonGroup>
-          </Box>
+          <MultiOrderForm />
         </Grid>
         <Grid item>
-          <Box>
-            <MultiOrderForm />
-          </Box>
+          <MultiOrderTable />
+        </Grid>
+        <Grid item>
+          <Grid container spacing={1} alignItems="center">
+            <Grid item xs={6}>
+              <Button variant="contained" color="primary" onClick={() => resetOrders()} fullWidth>
+                Clear
+              </Button>
+            </Grid>
+            <Grid item xs={6}>
+              <Button
+                variant="contained"
+                color="secondary"
+                fullWidth
+                disabled={$orders.totalCount === 0 || $orders.isVolumeLess}
+              >
+                Create
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </Section>

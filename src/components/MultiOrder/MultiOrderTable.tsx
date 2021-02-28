@@ -1,36 +1,35 @@
 import { Box, Grid, makeStyles, Table, TableBody, TableContainer, TableHead } from '@material-ui/core';
-import React from 'react';
+import clsx from 'clsx';
+import { useStore } from 'effector-react';
+import React, { useMemo } from 'react';
 import { StyledTableCell } from '../shared/StyledTableCell';
 import { StyledTableRow } from '../shared/StyledTableRow';
-
-interface PreviewData {
-  price: number;
-  volume: number;
-}
-
-interface MultiOrderTableProps {
-  data: PreviewData[];
-}
+import { $Orders } from './MultiOrder.effector';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     height: '200px',
     border: `1px solid ${theme.palette.divider}`,
   },
+  volume: {
+    color: theme.palette.error.main,
+  },
 }));
 
-export const MultiOrderTable: React.FC<MultiOrderTableProps> = ({ data }) => {
+export const MultiOrderTable: React.FC = () => {
   const classes = useStyles();
-  const data2 = data.length
-    ? data
-    : [
-        { price: 0.0001, volume: 0.2 },
-        { price: 0.000102, volume: 0.7 },
-        { price: 0.00010003, volume: 21.2 },
-        { price: 0.000107, volume: 15000.2 },
-        { price: 0.000109, volume: 959 },
-        { price: 0.00011, volume: 37 },
-      ];
+  const $orders = useStore($Orders);
+
+  const renderCells = useMemo(
+    () =>
+      $orders.orders.map(({ price, volume }) => (
+        <StyledTableRow key={price}>
+          <StyledTableCell>{$orders.isPriceZerosVisible ? price.toFixed(8) : price}</StyledTableCell>
+          <StyledTableCell>{$orders.isPriceZerosVisible ? volume.toFixed(8) : volume}</StyledTableCell>
+        </StyledTableRow>
+      )),
+    [$orders.orders, $orders.isPriceZerosVisible]
+  );
 
   return (
     <>
@@ -43,21 +42,16 @@ export const MultiOrderTable: React.FC<MultiOrderTableProps> = ({ data }) => {
                 <StyledTableCell>Volume</StyledTableCell>
               </StyledTableRow>
             </TableHead>
-            <TableBody>
-              {data2.map(({ price, volume }) => (
-                <StyledTableRow key={price}>
-                  <StyledTableCell>{price}</StyledTableCell>
-                  <StyledTableCell>{volume}</StyledTableCell>
-                </StyledTableRow>
-              ))}
-            </TableBody>
+            <TableBody>{renderCells}</TableBody>
           </Table>
         </TableContainer>
       </Box>
       <Box p={1}>
         <Grid container justify="space-between">
-          <Grid item>Orders: {data2.length}</Grid>
-          <Grid item>Volume: {data2.reduce((acc, item) => acc + item.volume, 0).toFixed(2)}</Grid>
+          <Grid item>Orders: {$orders.totalCount}</Grid>
+          <Grid item>
+            <Box className={clsx($orders.isVolumeLess && classes.volume)}>Volume: {$orders.totalVolume}</Box>
+          </Grid>
         </Grid>
       </Box>
     </>

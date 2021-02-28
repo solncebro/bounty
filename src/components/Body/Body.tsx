@@ -14,7 +14,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   mainBlock: {
     height: '600px',
   },
-  multiOrderBlock: {},
 }));
 
 const Body = () => {
@@ -63,9 +62,7 @@ const Body = () => {
       <Grid item xs={2}>
         <Grid container direction="column" spacing={2}>
           <Grid item>
-            <Box className={classes.multiOrderBlock}>
-              <MultiOrder />
-            </Box>
+            <MultiOrder />
           </Grid>
           <Grid item>
             <HistoryOrder />
