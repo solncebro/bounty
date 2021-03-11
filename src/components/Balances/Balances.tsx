@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Table, TableContainer, TableHead, TableRow, TableBody, TableCell, Grid, Button } from '@material-ui/core';
 import { makeStyles, Theme, withStyles } from '@material-ui/core/styles';
+import { $Balances, getBalanceFx, resetBalances } from './Balances.effects';
+import { useStore } from 'effector-react';
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
@@ -42,6 +44,14 @@ const rows = [
 
 const BalanceList = () => {
   const classes = useStyles();
+  const $balances = useStore($Balances);
+  console.log({ balances: $balances });
+
+  useEffect(() => {
+    getBalanceFx();
+
+    return resetBalances;
+  }, []);
 
   return (
     <Grid container direction="column" alignItems="center" spacing={2}>

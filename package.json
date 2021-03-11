@@ -2,6 +2,7 @@
   "name": "bounty",
   "version": "0.1.0",
   "private": true,
+  "proxy": "https://localhost:3000",
   "dependencies": {
     "@devexpress/dx-react-core": "^2.6.3",
     "@devexpress/dx-react-grid": "^2.6.3",
@@ -28,7 +29,7 @@
     "typescript": "^3.7.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "HTTPS=true react-scripts start",
     "build": "react-scripts build",
     "test": "jest",
     "eject": "react-scripts eject"
@@ -47,5 +48,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.0.1"
   }
 }

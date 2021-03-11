@@ -23,7 +23,6 @@ import { ChangePriceDirectionEnum, ChangeVolumeDirectionEnum } from '../../const
 import { CustomInput } from '../shared/CustomInput';
 import { cutEpsilon } from '../utils';
 import { $Orders, resetOrders, setIsPriceZerosVisible, setOrders } from './MultiOrder.effector';
-import { calcOrders } from './utils/calcOrders';
 import { splitByVolume } from './utils/splitByVolume';
 
 interface MultiOrderFormProps {
@@ -253,7 +252,7 @@ export const MultiOrderForm = () => {
                   }}
                 >
                   <FormControlLabel value={true} control={<Radio />} label="Volume" />
-                  <FormControlLabel value={false} control={<Radio />} label="Quantity" />
+                  <FormControlLabel value={false} control={<Radio />} label="Quantity" disabled />
                 </RadioGroup>
               )}
             />
