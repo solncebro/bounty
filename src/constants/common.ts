@@ -19,7 +19,7 @@ export const API = {
     secretKey: 'l0B1FEqUhet8nDjZWNMdmOTjfvVNVjozP6duEF2oNH9VYwJSwWHEAV4Ea3INB7CD',
   },
   TEST_NET: {
-    url: 'https://testnet.binance.vision/api/',
+    url: 'https://testnet.binance.vision/api/v3/',
     apiKey: 'xMJk41FVuinX538rGB0oi6aH5PZGFkfynXEb3AfRbJMLVCm6SobGgngqom3cIaEg',
     secretKey: '2HxKgn0cVd58i1617gCxVJyUc740auQfL3NOGuv3BC1XZRxvRFyg1Wn1uwQrAW6y',
   },

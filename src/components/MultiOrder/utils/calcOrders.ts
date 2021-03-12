@@ -1,4 +1,4 @@
-import { Order } from '../../../models/order';
+import { Order } from '../../../models/Order';
 import { cutEpsilon, getCalcPriceFunction } from '../../utils';
 import { setIsVolumeLess } from '../MultiOrder.effector';
 import { SplitByVolumeArgs } from './splitByVolume';

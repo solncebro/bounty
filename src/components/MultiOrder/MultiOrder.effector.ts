@@ -1,5 +1,5 @@
 import { createEvent, createStore } from 'effector';
-import { Order } from '../../models/order';
+import { Order } from '../../models/Order';
 
 interface OrdersProps {
   orders: Order[];

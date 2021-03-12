@@ -1,20 +1,19 @@
 import { createStore, createEvent, createEffect } from 'effector';
-import { AccountInformation } from '../../models/AccountInformation';
 import { Balance } from '../../models/Balance';
-import { binance } from '../../services/RequestService';
+import AccountService from '../../services/AccountService';
+import { addLog } from '../LogsDisplay/LogsDisplay.effect';
 
-export const $Balances = createStore<Balance[]>([]);
+const defaultStore: Balance[] = [];
+
+export const $Balances = createStore<Balance[]>(defaultStore);
 export const resetBalances = createEvent();
 export const getBalanceFx = createEffect({
-  handler: async (): Promise<AccountInformation> => {
-    const response = await binance.balance((error: any, balances: any) => {
-      if (error) return console.error(error);
-      console.info('balances()', balances);
-      console.info('ETH balance: ', balances.ETH.available);
-    });
+  handler: async (): Promise<Balance[]> => {
+    addLog('Getting balances');
+    const result = await AccountService.getAccountInformation();
 
-    return response.data;
+    return result.data.balances;
   },
 });
 
-$Balances.on(getBalanceFx.done, (state, { result }) => result?.balances).on(resetBalances, () => []);
+$Balances.on(getBalanceFx.done, (state, { result }) => result).on(resetBalances, () => []);

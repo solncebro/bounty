@@ -10,6 +10,8 @@ import {
   TableRow,
   Theme,
 } from '@material-ui/core';
+import { useStore } from 'effector-react';
+import { $Logs } from './LogsDisplay.effect';
 
 const useStyles = makeStyles((theme: Theme) => ({
   table: {
@@ -21,24 +23,16 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const logs = [
-  { time: '14:19 21.10.20', message: 'Создание ордена 2312523 - успешно создано' },
-  { time: '13:07 21.10.20', message: 'Отмена ордера 123123 - успешно' },
-  { time: '12:41 21.10.20', message: 'Создание ордена 2312523 - успешно создано' },
-  { time: '12:35 21.10.20', message: 'Отмена ордера 123123 - успешно' },
-  { time: '12:21 21.10.20', message: 'Отмена ордера 123123 - провал' },
-  { time: '12:17 21.10.20', message: 'Создание ордена 2312523 - успешно создано' },
-];
-
 const LogsDisplay = () => {
   const classes = useStyles();
+  const $logs = useStore($Logs);
 
   return (
     <Grid container direction="column" spacing={2}>
       <Grid item>Binance refresh time 3 sec</Grid>
       <Grid item>
         <Grid container justify="space-between">
-          <Grid item>Requsts: 234/1200</Grid>
+          <Grid item>Requests: 234/1200</Grid>
           <Grid item>Orders: 435/10000</Grid>
         </Grid>
       </Grid>
@@ -47,7 +41,7 @@ const LogsDisplay = () => {
         <TableContainer component={Paper} classes={{ root: classes.table }}>
           <Table stickyHeader>
             <TableBody>
-              {logs.map(({ time, message }) => (
+              {$logs.map(({ time, message }) => (
                 <TableRow key={time}>
                   <TableCell classes={{ root: classes.cell }}>{`${time} ${message}`}</TableCell>
                 </TableRow>
