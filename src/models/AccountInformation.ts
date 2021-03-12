@@ -11,6 +11,6 @@ export interface AccountInformation {
   canDeposit: boolean;
   updateTime: Date;
   accountType: AccountTypeEnum;
-  balances: Balance[];
+  balances: Balance<string>[];
   permissions: AccountTypeEnum[];
 }

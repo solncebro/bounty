@@ -1,30 +1,34 @@
-import Binance from 'node-binance-api';
-import { KeyString } from '../models/common';
-import { API, binanceUrls, corsAnywhereAddress } from '../constants/common';
-import { AxiosPromise, AxiosRequestConfig } from 'axios';
+import { TEST_NET_KEYS, CORS_ADDRESS } from '../constants/common';
+import axios, { AxiosInstance, AxiosPromise, AxiosRequestConfig } from 'axios';
 import queryString, { ParsedUrlQueryInput } from 'querystring';
-import { axiosInstance } from './Axios';
 import hmacSHA256 from 'crypto-js/hmac-sha256';
 import { createTimestamp } from '../components/utils';
+import { addLogCritical } from '../components/LogsDisplay/LogsDisplay.effect';
+import { ServerUrlsEnum } from '../constants/Binance/ServerUrlsEnum';
+import { KEYS } from '../keys';
 
-const { url, apiKey, secretKey } = API.TEST_NET;
+const { apiKey, secretKey } = KEYS ?? TEST_NET_KEYS;
+const signQueryText = (queryText: string) => hmacSHA256(queryText, secretKey).toString();
 
-const proxyBinanceUrls = (): KeyString<string> => {
-  return Boolean(url.match(/test/)?.length)
-    ? { base: `${corsAnywhereAddress}${url}` }
-    : Object.keys(binanceUrls).reduce(
-        (acc, key) => ({ ...acc, [key]: `${corsAnywhereAddress}${binanceUrls[key]}` }),
-        {}
-      );
-};
-
-export const binance = new Binance().options({
-  APIKEY: apiKey,
-  APISECRET: secretKey,
-  urls: proxyBinanceUrls(),
+export const axiosInstance: AxiosInstance = axios.create({
+  baseURL: `${CORS_ADDRESS}${KEYS ? ServerUrlsEnum.base : ServerUrlsEnum.baseTest}v3/`,
+  timeout: 300 * 1000,
+  headers: {
+    'X-MBX-APIKEY': apiKey,
+  },
 });
 
-const signQueryText = (queryText: string) => hmacSHA256(queryText, secretKey).toString();
+axiosInstance.interceptors.response.use(
+  (response): AxiosPromise<any> => {
+    return Promise.resolve(response);
+  },
+  (error): AxiosPromise<any> => {
+    addLogCritical({ code: error.response.status, msg: error.response.statusText });
+    console.error(error);
+
+    return Promise.reject(error);
+  }
+);
 
 export abstract class RequestService {
   protected static serviceApi = axiosInstance;
@@ -58,16 +62,10 @@ export abstract class RequestService {
   protected static delete<T>(
     url: string,
     data?: Nullable<ParsedUrlQueryInput>,
-    options?: AxiosRequestConfig,
-    disableURLExtends?: boolean
+    options?: AxiosRequestConfig
   ): AxiosPromise<T> {
-    let newUrl: string = url;
+    const fullUrl = data ? `${url}?${queryString.stringify(data)}` : url;
 
-    if (data && !disableURLExtends) {
-      newUrl = `${newUrl}?${queryString.stringify(data)}`;
-      return this.serviceApi.delete(url, options);
-    }
-
-    return this.serviceApi.delete(url, { ...options, data });
+    return this.serviceApi.delete(fullUrl, { ...options, data });
   }
 }

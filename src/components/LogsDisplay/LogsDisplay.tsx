@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Grid,
   makeStyles,
@@ -12,6 +12,7 @@ import {
 } from '@material-ui/core';
 import { useStore } from 'effector-react';
 import { $Logs } from './LogsDisplay.effect';
+import clsx from 'clsx';
 
 const useStyles = makeStyles((theme: Theme) => ({
   table: {
@@ -21,32 +22,39 @@ const useStyles = makeStyles((theme: Theme) => ({
     fontSize: '0.7rem',
     padding: '3px',
   },
+  critical: {
+    color: theme.palette.error.main,
+  },
 }));
 
 const LogsDisplay = () => {
   const classes = useStyles();
   const $logs = useStore($Logs);
 
+  const renderLogs = useMemo(
+    () =>
+      $logs.map(({ time, message, isCritical }) => (
+        <TableRow key={time}>
+          <TableCell className={clsx(classes.cell, isCritical && classes.critical)}>{`${time} ${message}`}</TableCell>
+        </TableRow>
+      )),
+    [$logs, classes]
+  );
+
   return (
     <Grid container direction="column" spacing={2}>
       <Grid item>Binance refresh time 3 sec</Grid>
       <Grid item>
         <Grid container justify="space-between">
-          <Grid item>Requests: 234/1200</Grid>
-          <Grid item>Orders: 435/10000</Grid>
+          <Grid item>R: 234/1200</Grid>
+          <Grid item>O: 435/10000</Grid>
         </Grid>
       </Grid>
 
       <Grid item>
         <TableContainer component={Paper} classes={{ root: classes.table }}>
           <Table stickyHeader>
-            <TableBody>
-              {$logs.map(({ time, message }) => (
-                <TableRow key={time}>
-                  <TableCell classes={{ root: classes.cell }}>{`${time} ${message}`}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+            <TableBody>{renderLogs}</TableBody>
           </Table>
         </TableContainer>
       </Grid>
