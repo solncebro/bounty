@@ -1,18 +1,18 @@
 import { createEvent, createStore } from 'effector';
-import { Order } from '../../models/Order';
+import { PreOrder } from '../../models/Order';
 
-interface OrdersProps {
-  orders: Order[];
+interface PreOrdersProps {
+  orders: PreOrder[];
   totalCount: number;
   totalVolume: number;
 }
 
-interface OrdersStoreProps extends OrdersProps {
+interface PreOrdersStoreProps extends PreOrdersProps {
   isPriceZerosVisible: boolean;
   isVolumeLess: boolean;
 }
 
-const defaultState: OrdersStoreProps = {
+const defaultState: PreOrdersStoreProps = {
   orders: [],
   totalCount: 0,
   totalVolume: 0,
@@ -20,14 +20,14 @@ const defaultState: OrdersStoreProps = {
   isVolumeLess: false,
 };
 
-export const $Orders = createStore<OrdersStoreProps>(defaultState);
-export const setOrders = createEvent<OrdersProps>();
+export const $PreOrders = createStore<PreOrdersStoreProps>(defaultState);
+export const setPreOrders = createEvent<PreOrdersProps>();
 export const setIsPriceZerosVisible = createEvent<boolean>();
 export const setIsVolumeLess = createEvent<boolean>();
-export const resetOrders = createEvent();
+export const resetPreOrders = createEvent();
 
-$Orders
-  .on(setOrders, (state, params) => ({ ...state, ...params }))
+$PreOrders
+  .on(setPreOrders, (state, params) => ({ ...state, ...params }))
   .on(setIsPriceZerosVisible, (state, isPriceZerosVisible) => ({ ...state, isPriceZerosVisible }))
   .on(setIsVolumeLess, (state, isVolumeLess) => ({ ...state, isVolumeLess }))
-  .on(resetOrders, (state) => ({ ...defaultState, isPriceZerosVisible: state.isPriceZerosVisible }));
+  .on(resetPreOrders, (state) => ({ ...defaultState, isPriceZerosVisible: state.isPriceZerosVisible }));

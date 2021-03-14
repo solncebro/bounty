@@ -22,7 +22,7 @@ import { SATOSHI } from '../../constants/common';
 import { ChangePriceDirectionEnum, ChangeVolumeDirectionEnum } from '../../constants/enums';
 import { CustomInput } from '../shared/CustomInput';
 import { cutEpsilon } from '../utils';
-import { $Orders, resetOrders, setIsPriceZerosVisible, setOrders } from './MultiOrder.effector';
+import { $PreOrders, resetPreOrders, setIsPriceZerosVisible, setPreOrders } from './MultiOrder.effector';
 import { splitByVolume } from './utils/splitByVolume';
 
 interface MultiOrderFormProps {
@@ -83,7 +83,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 export const MultiOrderForm = () => {
   const classes = useStyles();
-  const $orders = useStore($Orders);
+  const $preOrders = useStore($PreOrders);
   const { handleSubmit, control, watch, errors } = useForm<MultiOrderFormProps>({ defaultValues });
   const { isSplitByVolume, isBuyAction } = watch();
 
@@ -99,7 +99,7 @@ export const MultiOrderForm = () => {
     orderSizeDeviation,
     orderQuantity,
   }: MultiOrderFormProps) => {
-    resetOrders();
+    resetPreOrders();
 
     if (isSplitByVolume) {
       const allOrders = splitByVolume({
@@ -111,7 +111,7 @@ export const MultiOrderForm = () => {
       });
 
       const totalVolume = cutEpsilon(allOrders.reduce((acc, item) => acc + item.volume, 0));
-      setOrders({ orders: allOrders, totalVolume, totalCount: allOrders.length });
+      setPreOrders({ orders: allOrders, totalVolume, totalCount: allOrders.length });
     }
   };
 
@@ -359,9 +359,9 @@ export const MultiOrderForm = () => {
                   render={({ onChange, ...restProps }) => (
                     <Checkbox
                       {...restProps}
-                      checked={$orders.isPriceZerosVisible}
+                      checked={$preOrders.isPriceZerosVisible}
                       onChange={(_, checked) => {
-                        setIsPriceZerosVisible(!$orders.isPriceZerosVisible);
+                        setIsPriceZerosVisible(!$preOrders.isPriceZerosVisible);
                         onChange(checked);
                       }}
                     />

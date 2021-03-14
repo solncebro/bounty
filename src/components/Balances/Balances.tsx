@@ -5,7 +5,6 @@ import { $Balances, getBalanceFx, resetBalances } from './Balances.effects';
 import { useStore } from 'effector-react';
 import { StyledTableRow } from '../shared/StyledTableRow';
 import { StyledTableCell } from '../shared/StyledTableCell';
-import { MINIMAL_BALANCE_VISIBLE } from '../../constants/common';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tableContainer: {
@@ -18,7 +17,6 @@ const useStyles = makeStyles((theme: Theme) => ({
 const BalanceList = () => {
   const classes = useStyles();
   const $balances = useStore($Balances);
-  console.log({ balances: $balances });
 
   useEffect(() => {
     getBalanceFx();

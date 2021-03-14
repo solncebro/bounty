@@ -1,34 +1,71 @@
-import React from 'react';
-import { Table, TableContainer, TableHead, TableBody, Checkbox } from '@material-ui/core';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { Table, TableContainer, TableHead, TableBody } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { ReactComponent as Cross } from '../../assets/cross.svg';
 import { StyledTableRow } from '../shared/StyledTableRow';
 import { StyledTableCell } from '../shared/StyledTableCell';
+import { $Orders, getOrdersFx, resetOrders } from './OrdersList.effect';
+import { useStore } from 'effector-react';
+import { addLog } from '../LogsDisplay/LogsDisplay.effect';
+import SpotTradeService from '../../services/SpotTradeService';
+import { OrderExtended } from '../../models/Order';
+import { OrderStatusEnum } from '../../constants/Binance/OrderEnums';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
     border: `1px solid ${theme.palette.divider}`,
     height: '220px',
   },
-  checkBox: { padding: theme.spacing(0) },
 }));
-
-function createData(market: string, type: string, price: number, volume: number, cancel: boolean, sell: boolean) {
-  return { market, type, price, volume, cancel, sell };
-}
-
-const rows = [
-  createData('BTC-BCC', 'Buy', 0.12030001, 0.05, false, false),
-  createData('BTC-ETH', 'Buy', 0.12040002, 0.05, false, false),
-  createData('BTC-MCO', 'Buy', 0.12050003, 0.05, false, false),
-  createData('BTC-MATIC', 'Sell', 0.12060004, 0.05, false, false),
-  createData('BTC-BCHABC', 'Buy', 0.12070008, 0.05, false, false),
-  createData('BTC-BCH', 'Buy', 0.12070008, 0.05, false, false),
-  createData('BTC-VIB', 'Buy', 0.12070008, 0.05, false, false),
-];
 
 const OrdersList = () => {
   const classes = useStyles();
+  const $orders = useStore($Orders);
+
+  useEffect(() => {
+    getOrdersFx();
+
+    return resetOrders;
+  }, []);
+
+  const cancelOrder = useCallback(({ orderId, symbol, price, quoteAssetQty }: OrderExtended) => {
+    const orderInfo = `#${orderId} ${symbol} ${price} ${quoteAssetQty}`;
+    addLog(`Cancel order ${orderInfo}: start`);
+    SpotTradeService.cancelOrder({ orderId: String(orderId), symbol })
+      .then((resolve) => {
+        if (resolve.data.status === OrderStatusEnum.CANCELED) {
+          addLog(`Cancel order ${orderInfo}: successeful`);
+        }
+      })
+      .finally(() => getOrdersFx());
+  }, []);
+
+  const cancelAllOrder = useCallback((symbol: string) => {
+    addLog(`Cancel all orders ${symbol}: start`);
+    SpotTradeService.cancelAllOrders({ symbol })
+      .then((resolve) => {
+        if (resolve.data.length === $orders.filter((order) => order.symbol === symbol).length) {
+          addLog(`Cancel all orders ${symbol}: successeful`);
+        }
+      })
+      .finally(() => getOrdersFx());
+  }, []);
+
+  const renderOrders = useMemo(
+    () =>
+      $orders.map((order) => (
+        <StyledTableRow key={order.orderId}>
+          <StyledTableCell align="center">{order.symbol}</StyledTableCell>
+          <StyledTableCell align="center">{order.side}</StyledTableCell>
+          <StyledTableCell align="center">{order.price}</StyledTableCell>
+          <StyledTableCell align="center">{order.quoteAssetQty}</StyledTableCell>
+          <StyledTableCell align="center">
+            <Cross onClick={() => cancelOrder(order)} />
+          </StyledTableCell>
+        </StyledTableRow>
+      )),
+    [$orders, cancelOrder]
+  );
 
   return (
     <TableContainer classes={{ root: classes.root }}>
@@ -38,33 +75,15 @@ const OrdersList = () => {
             <StyledTableCell sortDirection="desc" align="center">
               MARKET
             </StyledTableCell>
-            <StyledTableCell align="center">TYPE</StyledTableCell>
-            <StyledTableCell align="center">PRICE</StyledTableCell>
-            <StyledTableCell align="center">VOLUME</StyledTableCell>
-            <StyledTableCell align="center">
-              <Cross onClick={() => console.log('click')} />
-            </StyledTableCell>
-            <StyledTableCell align="center">
-              <Cross onClick={() => console.log('click')} />
+            <StyledTableCell>TYPE</StyledTableCell>
+            <StyledTableCell>PRICE</StyledTableCell>
+            <StyledTableCell>VOLUME</StyledTableCell>
+            <StyledTableCell variant="head">
+              <Cross onClick={() => cancelAllOrder('ETHBTC')} />
             </StyledTableCell>
           </StyledTableRow>
         </TableHead>
-        <TableBody>
-          {rows.map((row, index) => (
-            <StyledTableRow key={index}>
-              <StyledTableCell align="center">{row.market}</StyledTableCell>
-              <StyledTableCell align="center">{row.type}</StyledTableCell>
-              <StyledTableCell align="center">{row.price}</StyledTableCell>
-              <StyledTableCell align="center">{row.volume}</StyledTableCell>
-              <StyledTableCell align="center">
-                <Checkbox checked={false} classes={{ root: classes.checkBox }} />
-              </StyledTableCell>
-              <StyledTableCell align="center">
-                <Checkbox checked={false} className={classes.checkBox} />
-              </StyledTableCell>
-            </StyledTableRow>
-          ))}
-        </TableBody>
+        <TableBody>{renderOrders}</TableBody>
       </Table>
     </TableContainer>
   );

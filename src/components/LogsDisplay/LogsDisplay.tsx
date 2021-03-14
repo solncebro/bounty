@@ -34,7 +34,7 @@ const LogsDisplay = () => {
   const renderLogs = useMemo(
     () =>
       $logs.map(({ time, message, isCritical }) => (
-        <TableRow key={time}>
+        <TableRow key={`${time} ${message}`}>
           <TableCell className={clsx(classes.cell, isCritical && classes.critical)}>{`${time} ${message}`}</TableCell>
         </TableRow>
       )),

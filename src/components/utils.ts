@@ -4,7 +4,9 @@ interface GetCalcPriceFunctionArgs {
   increment: number;
 }
 
-export const cutEpsilon = (value: number) => parseFloat(value.toFixed(8));
+export const getDecimalQuantity = (symbol: string) => (Boolean(symbol.match(/USDT/)) ? 2 : 8);
+
+export const cutEpsilon = (value: number, decimal: number = 8) => parseFloat(value.toFixed(decimal));
 
 export const getCalcPriceFunction = (isPriceIncrease: boolean) => ({
   initialPrice: price,

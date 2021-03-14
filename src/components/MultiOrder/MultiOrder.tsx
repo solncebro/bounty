@@ -3,11 +3,11 @@ import { Button, Grid } from '@material-ui/core';
 import { Section } from '../shared/Section';
 import { MultiOrderForm } from './MultiOrderForm';
 import { MultiOrderTable } from './MultiOrderTable';
-import { $Orders, resetOrders } from './MultiOrder.effector';
+import { $PreOrders, resetPreOrders } from './MultiOrder.effector';
 import { useStore } from 'effector-react';
 
 export const MultiOrder = () => {
-  const $orders = useStore($Orders);
+  const $preOrders = useStore($PreOrders);
 
   return (
     <Section title="Multi Order">
@@ -21,7 +21,7 @@ export const MultiOrder = () => {
         <Grid item>
           <Grid container spacing={1} alignItems="center">
             <Grid item xs={6}>
-              <Button variant="contained" color="primary" onClick={() => resetOrders()} fullWidth>
+              <Button variant="contained" color="primary" onClick={() => resetPreOrders()} fullWidth>
                 Clear
               </Button>
             </Grid>
@@ -30,7 +30,7 @@ export const MultiOrder = () => {
                 variant="contained"
                 color="secondary"
                 fullWidth
-                disabled={$orders.totalCount === 0 || $orders.isVolumeLess}
+                disabled={$preOrders.totalCount === 0 || $preOrders.isVolumeLess}
               >
                 Create
               </Button>

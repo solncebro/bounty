@@ -11,13 +11,15 @@ export const $Balances = createStore<BalanceWithSummary[]>(defaultStore);
 export const resetBalances = createEvent();
 export const getBalanceFx = createEffect({
   handler: async (): Promise<BalanceWithSummary[]> => {
-    addLog('Getting balances');
+    addLog('Get Account Information: start');
     const result = await AccountService.getAccountInformation();
+    addLog('Get Account Information: end');
 
     const filteredResult = result.data.balances.reduce((acc, { asset, free, locked }) => {
       const freeAsNumber = parseFloat(free);
       const lockedAsNumber = parseFloat(locked);
-      const summary = cutEpsilon(freeAsNumber + lockedAsNumber);
+      const isBtcOrEth = asset === 'BTC' || asset === 'ETH';
+      const summary = cutEpsilon(freeAsNumber + lockedAsNumber, isBtcOrEth ? 8 : 2);
 
       if (summary < MINIMAL_BALANCE_VISIBLE) {
         return acc;
