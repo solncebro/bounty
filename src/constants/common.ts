@@ -1,6 +1,7 @@
 export const SATOSHI = 0.00000001;
 export const MINIMAL_BALANCE_VISIBLE = 0.0001;
 export const CORS_ADDRESS = 'https://mysterious-depths-90933.herokuapp.com/';
+export const TRADING_QUOTE_SYMBOLS = ['BTC', 'USDT'];
 
 export const TEST_NET_KEYS = {
   apiKey: 'xMJk41FVuinX538rGB0oi6aH5PZGFkfynXEb3AfRbJMLVCm6SobGgngqom3cIaEg',

@@ -45,6 +45,10 @@ export abstract class RequestService {
   protected static serviceApi = axiosInstance;
 
   protected static get<T>(url: string, data?: Nullable<object>, options?: AxiosRequestConfig): AxiosPromise<T> {
+    if (url.match(/ticker/)) {
+      return this.serviceApi.get(url, options);
+    }
+
     const allQueryParams = getQueryParams(data);
     const fullUrl = `${url}?${queryString.stringify(allQueryParams)}`;
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import OrderList from '../OrdersList/OrdersList';
@@ -6,6 +6,7 @@ import Balances from '../Balances/Balances';
 import Chart from '../Chart/Chart';
 import LogsDisplay from '../LogsDisplay/LogsDisplay';
 import TradingViewWidget from 'react-tradingview-widget';
+import { getSymbolsTickersFx, resetSymbolsTickers } from './Header.effect';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -18,6 +19,12 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const Header = () => {
   const classes = useStyles();
+
+  useEffect(() => {
+    getSymbolsTickersFx();
+
+    return () => resetSymbolsTickers();
+  });
 
   return (
     <Grid container className={classes.header} spacing={2} justify="space-between" alignItems="flex-end">

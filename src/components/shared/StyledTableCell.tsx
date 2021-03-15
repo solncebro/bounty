@@ -14,6 +14,7 @@ export const StyledTableCell = withStyles((theme) => ({
   head: {
     fontWeight: 'bold',
     textAlign: 'center',
+    alignItems: 'center',
   },
   stickyHeader: {
     background: 'white',

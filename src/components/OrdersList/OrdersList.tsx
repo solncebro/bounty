@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
-import { Table, TableContainer, TableHead, TableBody } from '@material-ui/core';
+import { Table, TableContainer, TableHead, TableBody, Grid } from '@material-ui/core';
 import { makeStyles, Theme } from '@material-ui/core/styles';
 import { ReactComponent as Cross } from '../../assets/cross.svg';
 import { StyledTableRow } from '../shared/StyledTableRow';
@@ -40,16 +40,19 @@ const OrdersList = () => {
       .finally(() => getOrdersFx());
   }, []);
 
-  const cancelAllOrder = useCallback((symbol: string) => {
-    addLog(`Cancel all orders ${symbol}: start`);
-    SpotTradeService.cancelAllOrders({ symbol })
-      .then((resolve) => {
-        if (resolve.data.length === $orders.filter((order) => order.symbol === symbol).length) {
-          addLog(`Cancel all orders ${symbol}: successeful`);
-        }
-      })
-      .finally(() => getOrdersFx());
-  }, []);
+  const cancelAllOrder = useCallback(
+    (symbol: string) => {
+      addLog(`Cancel all orders ${symbol}: start`);
+      SpotTradeService.cancelAllOrders({ symbol })
+        .then((resolve) => {
+          if (resolve.data.length === $orders.filter((order) => order.symbol === symbol).length) {
+            addLog(`Cancel all orders ${symbol}: successeful`);
+          }
+        })
+        .finally(() => getOrdersFx());
+    },
+    [$orders]
+  );
 
   const renderOrders = useMemo(
     () =>
@@ -60,7 +63,9 @@ const OrdersList = () => {
           <StyledTableCell align="center">{order.price}</StyledTableCell>
           <StyledTableCell align="center">{order.quoteAssetQty}</StyledTableCell>
           <StyledTableCell align="center">
-            <Cross onClick={() => cancelOrder(order)} />
+            <Grid container item justify="center" alignItems="center">
+              <Cross onClick={() => cancelOrder(order)} />
+            </Grid>
           </StyledTableCell>
         </StyledTableRow>
       )),
@@ -79,7 +84,9 @@ const OrdersList = () => {
             <StyledTableCell>PRICE</StyledTableCell>
             <StyledTableCell>VOLUME</StyledTableCell>
             <StyledTableCell variant="head">
-              <Cross onClick={() => cancelAllOrder('ETHBTC')} />
+              <Grid container item justify="center" alignItems="center">
+                <Cross onClick={() => cancelAllOrder('ETHBTC')} />
+              </Grid>
             </StyledTableCell>
           </StyledTableRow>
         </TableHead>

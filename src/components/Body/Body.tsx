@@ -9,6 +9,8 @@ import { BuyControl } from '../BuyControl/BuyControl';
 import { SellControl } from '../SellControl/SellControl';
 import { Bids } from '../Bids/Bids';
 import { Asks } from '../Asks/Asks';
+import { $Application } from '../App/App.effect';
+import { useStore } from 'effector-react';
 
 const useStyles = makeStyles((theme: Theme) => ({
   mainBlock: {
@@ -18,6 +20,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const Body = () => {
   const classes = useStyles();
+  const $application = useStore($Application);
+  const symbolViewing = $application.currentSymbol ?? 'BTCUSDT';
 
   return (
     <Grid container spacing={2} justify="space-between" alignItems="flex-start">
@@ -32,7 +36,7 @@ const Body = () => {
               </Grid>
               <Grid item xs={9}>
                 <Box className={classes.mainBlock}>
-                  <TradingViewWidget symbol="BINANCE:BTCUSDT" locale="ru" interval="30" autosize />
+                  <TradingViewWidget symbol={`BINANCE:${symbolViewing}`} locale="ru" interval="30" autosize />
                 </Box>
               </Grid>
             </Grid>
