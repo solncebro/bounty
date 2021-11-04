@@ -4,7 +4,7 @@ import { useStore } from 'effector-react';
 import React, { useMemo } from 'react';
 import { StyledTableCell } from '../shared/StyledTableCell';
 import { StyledTableRow } from '../shared/StyledTableRow';
-import { $PreOrders } from './MultiOrder.effector';
+import { $MultiOrders } from './MultiOrder.effector';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -18,17 +18,17 @@ const useStyles = makeStyles((theme) => ({
 
 export const MultiOrderTable: React.FC = () => {
   const classes = useStyles();
-  const $preOrders = useStore($PreOrders);
+  const $multiOrders = useStore($MultiOrders);
 
   const renderCells = useMemo(
     () =>
-      $preOrders.orders.map(({ price, volume }) => (
+      $multiOrders.preOrders.map(({ price, volume }) => (
         <StyledTableRow key={price}>
-          <StyledTableCell>{$preOrders.isPriceZerosVisible ? price.toFixed(8) : price}</StyledTableCell>
-          <StyledTableCell>{$preOrders.isPriceZerosVisible ? volume.toFixed(8) : volume}</StyledTableCell>
+          <StyledTableCell>{$multiOrders.isPriceZerosVisible ? price.toFixed(8) : price}</StyledTableCell>
+          <StyledTableCell>{$multiOrders.isPriceZerosVisible ? volume.toFixed(8) : volume}</StyledTableCell>
         </StyledTableRow>
       )),
-    [$preOrders.orders, $preOrders.isPriceZerosVisible]
+    [$multiOrders.preOrders, $multiOrders.isPriceZerosVisible]
   );
 
   return (
@@ -48,9 +48,9 @@ export const MultiOrderTable: React.FC = () => {
       </Box>
       <Box p={1}>
         <Grid container justify="space-between">
-          <Grid item>Orders: {$preOrders.totalCount}</Grid>
+          <Grid item>Orders: {$multiOrders.totalCount}</Grid>
           <Grid item>
-            <Box className={clsx($preOrders.isVolumeLess && classes.volume)}>Volume: {$preOrders.totalVolume}</Box>
+            <Box className={clsx($multiOrders.isVolumeLess && classes.volume)}>Volume: {$multiOrders.totalVolume}</Box>
           </Grid>
         </Grid>
       </Box>

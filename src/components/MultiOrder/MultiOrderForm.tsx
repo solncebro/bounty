@@ -11,45 +11,56 @@ import {
   Radio,
   RadioGroup,
   Select,
-  TextField,
+  Slider,
   Theme,
 } from '@material-ui/core';
 import clsx from 'clsx';
-import { useStore } from 'effector-react';
+import { useStore, useStoreMap } from 'effector-react';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { OrderSideEnum } from '../../constants/Binance/OrderEnums';
 import { SATOSHI } from '../../constants/common';
 import { ChangePriceDirectionEnum, ChangeVolumeDirectionEnum } from '../../constants/enums';
+import { $Application } from '../App/App.effect';
+import { $Balances } from '../Balances/Balances.effects';
 import { CustomInput } from '../shared/CustomInput';
+import { NumberField } from '../shared/NumberField';
 import { cutEpsilon } from '../utils';
-import { $PreOrders, resetPreOrders, setIsPriceZerosVisible, setPreOrders } from './MultiOrder.effector';
+import { $MultiOrders, resetMultiOrders, setIsPriceZerosVisible, setMultiOrders } from './MultiOrder.effector';
 import { splitByVolume } from './utils/splitByVolume';
 
-interface MultiOrderFormProps {
+interface CurrentSymbolFreeBalances {
+  freeBalanceBaseAsset: number;
+  freeBalanceQuoteAsset: number;
+}
+
+export interface MultiOrderFormProps {
   isBuyAction: boolean;
-  initialPrice: number;
-  changePriceStep: number;
+  initialPrice: Nullable<number>;
+  changePriceStep: Nullable<number>;
   changePriceDirection: ChangePriceDirectionEnum;
-  volumeLimit: number;
+  volumeLimit: Nullable<number>;
+  volumeLimitPercent: Nullable<number>;
   isSplitByVolume: boolean;
-  orderSize: number;
+  orderSize: Nullable<number>;
   orderSizeDirection: ChangeVolumeDirectionEnum;
-  orderSizeDeviation: number;
-  orderQuantity: number;
+  orderSizeDeviation: Nullable<number>;
+  orderQuantity: Nullable<number>;
   isPriceZerosVisible: boolean;
 }
 
 const defaultValues = {
   isBuyAction: true,
-  initialPrice: 0,
-  changePriceStep: 0,
+  initialPrice: null,
+  changePriceStep: null,
   changePriceDirection: ChangePriceDirectionEnum.both,
-  volumeLimit: 0,
+  volumeLimit: null,
+  volumeLimitPercent: null,
   isSplitByVolume: true,
-  orderSize: 0,
+  orderSize: null,
   orderSizeDirection: ChangeVolumeDirectionEnum.same,
-  orderSizeDeviation: 0,
-  orderQuantity: 0,
+  orderSizeDeviation: null,
+  orderQuantity: null,
   isPriceZerosVisible: true,
 };
 
@@ -83,9 +94,36 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 export const MultiOrderForm = () => {
   const classes = useStyles();
-  const $preOrders = useStore($PreOrders);
-  const { handleSubmit, control, watch, errors } = useForm<MultiOrderFormProps>({ defaultValues });
-  const { isSplitByVolume, isBuyAction } = watch();
+  const $multiOrders = useStore($MultiOrders);
+  const $application = useStore($Application);
+  const currentSymbol = $application.currentSymbol;
+  const { freeBalanceBaseAsset, freeBalanceQuoteAsset } = useStoreMap({
+    store: $Balances,
+    keys: [currentSymbol],
+    fn: (balances) => {
+      const initialBalances: CurrentSymbolFreeBalances = { freeBalanceBaseAsset: 0, freeBalanceQuoteAsset: 0 };
+      if (currentSymbol) {
+        return balances.reduce((result, symbol) => {
+          if (currentSymbol?.baseAsset === symbol.asset) {
+            result.freeBalanceBaseAsset = symbol.free;
+          }
+
+          if (currentSymbol?.quoteAsset === symbol.asset) {
+            result.freeBalanceQuoteAsset = symbol.free;
+          }
+
+          return result;
+        }, initialBalances);
+      }
+
+      return initialBalances;
+    },
+  });
+
+  const { handleSubmit, control, watch, errors, setValue } = useForm<MultiOrderFormProps>({ defaultValues });
+  const { isSplitByVolume, isBuyAction, volumeLimitPercent } = watch();
+
+  const currentActionFreeLimitVolume = isBuyAction ? freeBalanceQuoteAsset : freeBalanceBaseAsset;
 
   const onSubmit = ({
     isBuyAction,
@@ -99,10 +137,10 @@ export const MultiOrderForm = () => {
     orderSizeDeviation,
     orderQuantity,
   }: MultiOrderFormProps) => {
-    resetPreOrders();
+    resetMultiOrders();
 
-    if (isSplitByVolume) {
-      const allOrders = splitByVolume({
+    if (isSplitByVolume && initialPrice && changePriceStep && volumeLimit && orderSize) {
+      const preOrdersSplitByVolume = splitByVolume({
         initialPrice,
         changePriceStep,
         changePriceDirection,
@@ -110,8 +148,13 @@ export const MultiOrderForm = () => {
         orderSize,
       });
 
-      const totalVolume = cutEpsilon(allOrders.reduce((acc, item) => acc + item.volume, 0));
-      setPreOrders({ orders: allOrders, totalVolume, totalCount: allOrders.length });
+      const totalVolume = cutEpsilon(preOrdersSplitByVolume.reduce((acc, item) => acc + item.volume, 0));
+      setMultiOrders({
+        preOrders: preOrdersSplitByVolume,
+        totalVolume,
+        totalCount: preOrdersSplitByVolume.length,
+        side: isBuyAction ? OrderSideEnum.BUY : OrderSideEnum.SELL,
+      });
     }
   };
 
@@ -128,14 +171,14 @@ export const MultiOrderForm = () => {
                     className={clsx(isBuyAction && classes.buy)}
                     onClick={() => onChange(true)}
                   >
-                    Buy
+                    {OrderSideEnum.BUY}
                   </Button>
                   <Button
                     variant="outlined"
                     className={clsx(!isBuyAction && classes.sell)}
                     onClick={() => onChange(false)}
                   >
-                    Sell
+                    {OrderSideEnum.SELL}
                   </Button>
                 </ButtonGroup>
               </Box>
@@ -149,17 +192,7 @@ export const MultiOrderForm = () => {
             <Controller
               name="initialPrice"
               control={control}
-              render={({ onChange, ...restProps }) => (
-                <TextField
-                  {...restProps}
-                  onChange={({ currentTarget: { value } }) => onChange(parseFloat(value))}
-                  type="number"
-                  size="small"
-                  variant="outlined"
-                  error={!!errors.initialPrice}
-                  inputProps={{ className: classes.input }}
-                />
-              )}
+              render={(props) => <NumberField renderProps={props} hasError={!!errors.initialPrice} />}
               rules={{ required: true, min: SATOSHI }}
             />
           </CustomInput>
@@ -170,17 +203,7 @@ export const MultiOrderForm = () => {
             <Controller
               name="changePriceStep"
               control={control}
-              render={({ onChange, ...restProps }) => (
-                <TextField
-                  {...restProps}
-                  onChange={({ currentTarget: { value } }) => onChange(parseFloat(value))}
-                  type="number"
-                  size="small"
-                  variant="outlined"
-                  error={!!errors.changePriceStep}
-                  inputProps={{ className: classes.input }}
-                />
-              )}
+              render={(props) => <NumberField renderProps={props} hasError={!!errors.changePriceStep} />}
               rules={{ required: true, min: SATOSHI }}
             />
           </CustomInput>
@@ -213,24 +236,56 @@ export const MultiOrderForm = () => {
                 <Controller
                   name="volumeLimit"
                   control={control}
-                  render={({ onChange, ...restProps }) => (
-                    <TextField
-                      {...restProps}
-                      onChange={({ currentTarget: { value } }) => onChange(parseFloat(value))}
-                      type="number"
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.volumeLimit}
-                      inputProps={{ className: classes.input }}
-                    />
-                  )}
+                  render={(props) => <NumberField renderProps={props} hasError={!!errors.volumeLimit} />}
                   rules={{ required: true, min: SATOSHI }}
                 />
               </CustomInput>
             </Grid>
             <Grid item xs={4}>
+              <Box></Box>
+            </Grid>
+          </Grid>
+        </Grid>
+
+        <Grid item>
+          <Grid container spacing={1} alignItems="center">
+            <Grid item xs={8}>
+              <Controller
+                name="volumeLimitPercent"
+                control={control}
+                render={({ onChange, value, ...restProps }) => (
+                  <Slider
+                    {...restProps}
+                    value={Number(value)}
+                    disabled={!currentSymbol}
+                    valueLabelDisplay="auto"
+                    valueLabelFormat={(value) => `${value}%`}
+                    onChange={(event, newValue) => {
+                      if (typeof newValue === 'number' && currentActionFreeLimitVolume) {
+                        if (volumeLimitPercent !== newValue) {
+                          const newLimit = (newValue * currentActionFreeLimitVolume) / 100;
+                          onChange(newValue);
+                          setValue('volumeLimit', newLimit);
+                        }
+                      }
+                    }}
+                    step={1}
+                    marks={[{ value: 0 }, { value: 25 }, { value: 50 }, { value: 75 }, { value: 100 }]}
+                    min={0}
+                    max={100}
+                    orientation="horizontal"
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={4}>
               <Box>
-                <Button variant="contained" color="primary" fullWidth>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={() => setValue('volumeLimit', currentActionFreeLimitVolume)}
+                >
                   Max
                 </Button>
               </Box>
@@ -266,17 +321,8 @@ export const MultiOrderForm = () => {
                 <Controller
                   name="orderSize"
                   control={control}
-                  render={({ onChange, ...restProps }) => (
-                    <TextField
-                      {...restProps}
-                      onChange={({ currentTarget: { value } }) => onChange(parseFloat(value))}
-                      type="number"
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.orderSize}
-                      inputProps={{ className: classes.input }}
-                      disabled={!isSplitByVolume}
-                    />
+                  render={(props) => (
+                    <NumberField renderProps={props} hasError={!!errors.orderSize} isDisabled={!isSplitByVolume} />
                   )}
                   rules={isSplitByVolume ? { required: true, validate: (value) => value > SATOSHI } : {}}
                 />
@@ -309,17 +355,8 @@ export const MultiOrderForm = () => {
                 <Controller
                   name="orderQuantity"
                   control={control}
-                  render={({ onChange, ...restProps }) => (
-                    <TextField
-                      {...restProps}
-                      onChange={({ currentTarget: { value } }) => onChange(parseFloat(value))}
-                      type="number"
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.orderQuantity}
-                      inputProps={{ className: classes.input }}
-                      disabled={isSplitByVolume}
-                    />
+                  render={(props) => (
+                    <NumberField renderProps={props} hasError={!!errors.orderQuantity} isDisabled={isSplitByVolume} />
                   )}
                   rules={!isSplitByVolume ? { required: true, validate: (value) => value > SATOSHI } : {}}
                 />
@@ -330,16 +367,11 @@ export const MultiOrderForm = () => {
                 <Controller
                   name="orderSizeDeviation"
                   control={control}
-                  render={({ onChange, ...restProps }) => (
-                    <TextField
-                      {...restProps}
-                      onChange={({ currentTarget: { value } }) => onChange(parseFloat(value))}
-                      type="number"
-                      size="small"
-                      variant="outlined"
-                      error={!!errors.orderSizeDeviation}
-                      inputProps={{ className: classes.input }}
-                      disabled={isSplitByVolume}
+                  render={(props) => (
+                    <NumberField
+                      renderProps={props}
+                      hasError={!!errors.orderSizeDeviation}
+                      isDisabled={isSplitByVolume}
                     />
                   )}
                   rules={!isSplitByVolume ? { required: true, validate: (value) => value > SATOSHI } : {}}
@@ -359,9 +391,9 @@ export const MultiOrderForm = () => {
                   render={({ onChange, ...restProps }) => (
                     <Checkbox
                       {...restProps}
-                      checked={$preOrders.isPriceZerosVisible}
+                      checked={$multiOrders.isPriceZerosVisible}
                       onChange={(_, checked) => {
-                        setIsPriceZerosVisible(!$preOrders.isPriceZerosVisible);
+                        setIsPriceZerosVisible(!$multiOrders.isPriceZerosVisible);
                         onChange(checked);
                       }}
                     />

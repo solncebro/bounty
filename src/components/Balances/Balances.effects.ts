@@ -18,23 +18,24 @@ export const getBalanceFx = createEffect({
     const filteredResult = result.data.balances.reduce((acc, { asset, free, locked }) => {
       const freeAsNumber = parseFloat(free);
       const lockedAsNumber = parseFloat(locked);
-      const isBtcOrEth = asset === 'BTC' || asset === 'ETH';
-      const summary = cutEpsilon(freeAsNumber + lockedAsNumber, isBtcOrEth ? 8 : 2);
-
+      const isUsdAsset = asset === 'USDT' || asset === 'BUSD' || asset === 'TUSD';
+      const precisionCryptoAsset = asset === 'BTC' || asset === 'ETH' ? 8 : 2;
+      const precision = isUsdAsset ? 0 : precisionCryptoAsset;
+      const summary = cutEpsilon(freeAsNumber + lockedAsNumber, precision);
       if (summary < MINIMAL_BALANCE_VISIBLE) {
         return acc;
       }
 
       const balance = {
         asset,
-        free: freeAsNumber,
-        locked: lockedAsNumber,
-        summary: summary,
+        free: cutEpsilon(freeAsNumber, precision),
+        locked: cutEpsilon(lockedAsNumber, precision),
+        summary,
       };
 
       const [first] = acc;
 
-      if (asset === 'BTC' || (asset === 'USDT' && first.asset !== 'BTC')) {
+      if (asset === 'BTC' || (asset === 'USDT' && first?.asset !== 'BTC')) {
         return [balance, ...acc];
       }
 
@@ -44,6 +45,7 @@ export const getBalanceFx = createEffect({
 
       return [...acc, balance];
     }, defaultStore);
+    console.log({ result, filteredResult });
 
     const [BTC, USDT] = filteredResult;
     const sortedOtherAssets = filteredResult.slice(2).sort((a, b) => (a.summary > b.summary ? -1 : 1));

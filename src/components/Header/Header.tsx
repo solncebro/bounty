@@ -6,7 +6,7 @@ import Balances from '../Balances/Balances';
 import Chart from '../Chart/Chart';
 import LogsDisplay from '../LogsDisplay/LogsDisplay';
 import TradingViewWidget from 'react-tradingview-widget';
-import { getSymbolsTickersFx, resetSymbolsTickers } from './Header.effect';
+import { getExchangeInformationFx, resetExchangeInformation } from './Header.effect';
 
 const useStyles = makeStyles((theme: Theme) => ({
   header: {
@@ -21,9 +21,9 @@ const Header = () => {
   const classes = useStyles();
 
   useEffect(() => {
-    getSymbolsTickersFx();
+    getExchangeInformationFx();
 
-    return () => resetSymbolsTickers();
+    return () => resetExchangeInformation();
   });
 
   return (

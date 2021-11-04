@@ -10,6 +10,7 @@ import { addLog } from '../LogsDisplay/LogsDisplay.effect';
 import SpotTradeService from '../../services/SpotTradeService';
 import { OrderExtended } from '../../models/Order';
 import { OrderStatusEnum } from '../../constants/Binance/OrderEnums';
+import { $Application } from '../App/App.effect';
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -21,6 +22,8 @@ const useStyles = makeStyles((theme: Theme) => ({
 const OrdersList = () => {
   const classes = useStyles();
   const $orders = useStore($Orders);
+  const $application = useStore($Application);
+  const currentSymbol = $application.currentSymbol?.symbol ?? 'BTCUSDT';
 
   useEffect(() => {
     getOrdersFx();
@@ -85,7 +88,7 @@ const OrdersList = () => {
             <StyledTableCell>VOLUME</StyledTableCell>
             <StyledTableCell variant="head">
               <Grid container item justify="center" alignItems="center">
-                <Cross onClick={() => cancelAllOrder('ETHBTC')} />
+                <Cross onClick={() => cancelAllOrder(currentSymbol)} />
               </Grid>
             </StyledTableCell>
           </StyledTableRow>

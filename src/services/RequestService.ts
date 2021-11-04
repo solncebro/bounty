@@ -34,8 +34,8 @@ axiosInstance.interceptors.response.use(
     return Promise.resolve(response);
   },
   (error): AxiosPromise<any> => {
-    addLogCritical({ code: error.response.status, msg: error.response.statusText });
-    console.error(error);
+    const errorLog = error.response.data || { code: error.response.status, msg: error.response.statusText };
+    addLogCritical(errorLog);
 
     return Promise.reject(error);
   }
@@ -45,7 +45,7 @@ export abstract class RequestService {
   protected static serviceApi = axiosInstance;
 
   protected static get<T>(url: string, data?: Nullable<object>, options?: AxiosRequestConfig): AxiosPromise<T> {
-    if (url.match(/ticker/)) {
+    if (url.match(/exchangeInfo/)) {
       return this.serviceApi.get(url, options);
     }
 
@@ -56,7 +56,9 @@ export abstract class RequestService {
   }
 
   protected static post<T>(url: string, data?: Nullable<object>, options?: AxiosRequestConfig): AxiosPromise<T> {
-    return this.serviceApi.post(url, data, options);
+    const allQueryParams = getQueryParams(data);
+
+    return this.serviceApi.post(url, queryString.stringify(allQueryParams), options);
   }
 
   protected static put<T>(url: string, data?: Nullable<object>, options?: AxiosRequestConfig): AxiosPromise<T> {

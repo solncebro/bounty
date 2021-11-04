@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 const Body = () => {
   const classes = useStyles();
   const $application = useStore($Application);
-  const symbolViewing = $application.currentSymbol ?? 'BTCUSDT';
+  const currentSymbol = $application.currentSymbol?.symbol ?? 'BTCUSDT';
 
   return (
     <Grid container spacing={2} justify="space-between" alignItems="flex-start">
@@ -36,7 +36,7 @@ const Body = () => {
               </Grid>
               <Grid item xs={9}>
                 <Box className={classes.mainBlock}>
-                  <TradingViewWidget symbol={`BINANCE:${symbolViewing}`} locale="ru" interval="30" autosize />
+                  <TradingViewWidget symbol={`BINANCE:${currentSymbol}`} locale="ru" interval="30" autosize />
                 </Box>
               </Grid>
             </Grid>

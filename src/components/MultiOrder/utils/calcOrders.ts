@@ -3,13 +3,13 @@ import { cutEpsilon, getCalcPriceFunction } from '../../utils';
 import { setIsVolumeLess } from '../MultiOrder.effector';
 import { SplitByVolumeArgs } from './splitByVolume';
 
-interface CalcOrdersArgs extends Omit<SplitByVolumeArgs, 'changePriceDirection'> {
+interface CalcPreOrdersArgs extends Omit<SplitByVolumeArgs, 'changePriceDirection'> {
   orders: PreOrder[];
   currentQuantity: number;
   isPriceIncrease: boolean;
 }
 
-export const calcOrders = ({
+export const calcPreOrders = ({
   orders,
   currentQuantity,
   orderSize,
@@ -17,7 +17,7 @@ export const calcOrders = ({
   changePriceStep,
   volumeLimit,
   isPriceIncrease,
-}: CalcOrdersArgs) => {
+}: CalcPreOrdersArgs) => {
   const newOrders = [...orders];
   const calcPrice = getCalcPriceFunction(isPriceIncrease);
 
@@ -37,3 +37,5 @@ export const calcOrders = ({
 
   return newOrders;
 };
+
+export const makeOrdersParams = () => {};

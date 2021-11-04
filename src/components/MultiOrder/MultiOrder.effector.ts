@@ -1,33 +1,36 @@
 import { createEvent, createStore } from 'effector';
+import { OrderSideEnum } from '../../constants/Binance/OrderEnums';
 import { PreOrder } from '../../models/Order';
 
-interface PreOrdersProps {
-  orders: PreOrder[];
+interface MultiOrdersProps {
+  preOrders: PreOrder[];
+  side: OrderSideEnum;
   totalCount: number;
   totalVolume: number;
 }
 
-interface PreOrdersStoreProps extends PreOrdersProps {
+interface MultiOrdersStoreProps extends MultiOrdersProps {
   isPriceZerosVisible: boolean;
   isVolumeLess: boolean;
 }
 
-const defaultState: PreOrdersStoreProps = {
-  orders: [],
+const defaultState: MultiOrdersStoreProps = {
+  preOrders: [],
+  side: OrderSideEnum.BUY,
   totalCount: 0,
   totalVolume: 0,
   isPriceZerosVisible: true,
   isVolumeLess: false,
 };
 
-export const $PreOrders = createStore<PreOrdersStoreProps>(defaultState);
-export const setPreOrders = createEvent<PreOrdersProps>();
+export const $MultiOrders = createStore<MultiOrdersStoreProps>(defaultState);
+export const setMultiOrders = createEvent<MultiOrdersProps>();
 export const setIsPriceZerosVisible = createEvent<boolean>();
 export const setIsVolumeLess = createEvent<boolean>();
-export const resetPreOrders = createEvent();
+export const resetMultiOrders = createEvent();
 
-$PreOrders
-  .on(setPreOrders, (state, params) => ({ ...state, ...params }))
+$MultiOrders
+  .on(setMultiOrders, (state, params) => ({ ...state, ...params }))
   .on(setIsPriceZerosVisible, (state, isPriceZerosVisible) => ({ ...state, isPriceZerosVisible }))
   .on(setIsVolumeLess, (state, isVolumeLess) => ({ ...state, isVolumeLess }))
-  .on(resetPreOrders, (state) => ({ ...defaultState, isPriceZerosVisible: state.isPriceZerosVisible }));
+  .on(resetMultiOrders, (state) => ({ ...defaultState, isPriceZerosVisible: state.isPriceZerosVisible }));

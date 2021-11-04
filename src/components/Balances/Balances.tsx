@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 const BalanceList = () => {
   const classes = useStyles();
   const $balances = useStore($Balances);
+  console.log({ balances: $balances });
 
   useEffect(() => {
     getBalanceFx();
@@ -26,10 +27,11 @@ const BalanceList = () => {
 
   const renderRows = useMemo(
     () =>
-      $balances.map(({ asset, summary }) => (
+      $balances.map(({ asset, summary, free }) => (
         <StyledTableRow key={asset}>
           <StyledTableCell align="center">{asset}</StyledTableCell>
           <StyledTableCell align="center">{summary}</StyledTableCell>
+          <StyledTableCell align="center">{free}</StyledTableCell>
         </StyledTableRow>
       )),
     [$balances]
@@ -48,7 +50,8 @@ const BalanceList = () => {
             <TableHead>
               <TableRow>
                 <StyledTableCell align="center">SYMBOL</StyledTableCell>
-                <StyledTableCell align="center">BALANCE</StyledTableCell>
+                <StyledTableCell align="center">TOTAL</StyledTableCell>
+                <StyledTableCell align="center">FREE</StyledTableCell>
               </TableRow>
             </TableHead>
             <TableBody>{renderRows}</TableBody>

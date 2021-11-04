@@ -1,7 +1,8 @@
 import { createEvent, createStore } from 'effector';
+import { Symbol } from '../../models/Symbol';
 
 interface ApplicationStore {
-  currentSymbol: Nullable<string>;
+  currentSymbol: Nullable<Symbol>;
 }
 
 const defaultStore = {
@@ -10,7 +11,7 @@ const defaultStore = {
 
 export const $Application = createStore<ApplicationStore>(defaultStore);
 export const resetApplication = createEvent();
-export const setCurrentSymbol = createEvent<string>();
+export const setCurrentSymbol = createEvent<Nullable<Symbol>>();
 
 $Application
   .on(resetApplication, () => defaultStore)

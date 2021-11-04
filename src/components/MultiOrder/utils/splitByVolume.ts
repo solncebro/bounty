@@ -1,5 +1,5 @@
 import { ChangePriceDirectionEnum } from '../../../constants/enums';
-import { calcOrders } from './calcOrders';
+import { calcPreOrders } from './calcOrders';
 
 export interface SplitByVolumeArgs {
   initialPrice: number;
@@ -9,7 +9,7 @@ export interface SplitByVolumeArgs {
   changePriceDirection: ChangePriceDirectionEnum;
 }
 
-const getDecrementAndncrementOrderQuantity = (
+const getDecrementAndIncrementOrderQuantity = (
   changePriceDirection: ChangePriceDirectionEnum,
   quantityOrdersForCalculate: number
 ) => {
@@ -42,12 +42,12 @@ export const splitByVolume = ({
     return initialOrder;
   }
 
-  const { decrementPricesQuantity, incrementPricesQuantity } = getDecrementAndncrementOrderQuantity(
+  const { decrementPricesQuantity, incrementPricesQuantity } = getDecrementAndIncrementOrderQuantity(
     changePriceDirection,
     quantityOrdersForCalculate
   );
 
-  const ordersWithDecrementPrice = calcOrders({
+  const ordersWithDecrementPrice = calcPreOrders({
     orders: initialOrder,
     currentQuantity: decrementPricesQuantity,
     orderSize,
@@ -57,7 +57,7 @@ export const splitByVolume = ({
     isPriceIncrease: false,
   });
 
-  const allOrders = calcOrders({
+  const allOrders = calcPreOrders({
     orders: ordersWithDecrementPrice,
     currentQuantity: incrementPricesQuantity,
     orderSize,
