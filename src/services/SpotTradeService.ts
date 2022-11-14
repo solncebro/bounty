@@ -1,4 +1,4 @@
-import { Order } from '../models/Order';
+import { Order } from '../models/order';
 import { SymbolBase } from '../models/Symbol';
 import { RequestService } from './RequestService';
 import {

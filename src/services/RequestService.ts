@@ -1,6 +1,5 @@
 import { TEST_NET_KEYS, CORS_ADDRESS } from '../constants/common';
 import axios, { AxiosInstance, AxiosPromise, AxiosRequestConfig } from 'axios';
-import queryString from 'querystring';
 import hmacSHA256 from 'crypto-js/hmac-sha256';
 import { createTimestamp } from '../components/utils';
 import { addLogCritical } from '../components/LogsDisplay/LogsDisplay.effect';
@@ -12,9 +11,9 @@ const { apiKey, secretKey } = KEYS ?? TEST_NET_KEYS;
 const signQueryText = (queryText: string) => hmacSHA256(queryText, secretKey).toString();
 
 const getQueryParams = (data?: Nullable<object>) => {
-  const timestamp = createTimestamp();
+  const timestamp = createTimestamp().toString();
   const dataWithTimestamp = data ? { ...data, timestamp } : { timestamp };
-  const queryText = queryString.stringify(dataWithTimestamp);
+  const queryText = new URLSearchParams(dataWithTimestamp).toString();
   const signature = signQueryText(queryText);
 
   return { ...dataWithTimestamp, signature };
@@ -50,7 +49,7 @@ export abstract class RequestService {
     }
 
     const allQueryParams = getQueryParams(data);
-    const fullUrl = `${url}?${queryString.stringify(allQueryParams)}`;
+    const fullUrl = `${url}?${new URLSearchParams(allQueryParams).toString()}`;
 
     return this.serviceApi.get(fullUrl, options);
   }
@@ -58,7 +57,7 @@ export abstract class RequestService {
   protected static post<T>(url: string, data?: Nullable<object>, options?: AxiosRequestConfig): AxiosPromise<T> {
     const allQueryParams = getQueryParams(data);
 
-    return this.serviceApi.post(url, queryString.stringify(allQueryParams), options);
+    return this.serviceApi.post(url, new URLSearchParams(allQueryParams).toString(), options);
   }
 
   protected static put<T>(url: string, data?: Nullable<object>, options?: AxiosRequestConfig): AxiosPromise<T> {
@@ -71,7 +70,7 @@ export abstract class RequestService {
 
   protected static delete<T>(url: string, data?: Nullable<object>, options?: AxiosRequestConfig): AxiosPromise<T> {
     const allQueryParams = getQueryParams(data);
-    const fullUrl = `${url}?${queryString.stringify(allQueryParams)}`;
+    const fullUrl = `${url}?${new URLSearchParams(allQueryParams).toString()}`;
 
     return this.serviceApi.delete(fullUrl, options);
   }

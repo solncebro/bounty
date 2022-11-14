@@ -37,6 +37,7 @@ export const MultiOrder = () => {
       return;
     }
 
+    addLog('Creation orders: start');
     const extendedPreOrders = preOrders.map((preorder) => {
       const preQuantity = preorder.volume / preorder.price;
       const steppedQuantity = cutEpsilon(preQuantity - (preQuantity % stepSize));
@@ -49,12 +50,11 @@ export const MultiOrder = () => {
         price: preorder.price,
         quantity: steppedQuantity,
       };
-      console.log({ params });
+      console.log({ params, preorder, preQuantity });
       // return params;
       return SpotTradeService.createOrder(params);
     });
-    console.log({ currentSymbol, lotSize, multiOrders: $multiOrders, extendedPreOrders });
-    addLog('Creation orders: start');
+    console.log({ currentSymbol, lotSize, multiOrders: $multiOrders });
     Promise.all(extendedPreOrders)
       .then((resolve) => console.log(resolve))
       .catch((reject) => console.log(reject))

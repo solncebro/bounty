@@ -1,31 +1,33 @@
 import React from 'react';
-import { TextField } from '@material-ui/core';
-import { ControllerRenderProps } from 'react-hook-form';
-import NumberFormat from 'react-number-format';
+import { makeStyles, TextField, TextFieldProps, Theme } from '@material-ui/core';
+import { SATOSHI } from '../../constants/common';
 
-interface NumberFieldProps {
-  renderProps: ControllerRenderProps<Record<string, any>>;
-  hasError: boolean;
-  isDisabled?: boolean;
-}
+const useStyles = makeStyles((theme: Theme) => ({
+  input: {
+    '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
+      '-webkit-appearance': 'none',
+      '-moz-appearance': 'none',
+      margin: 0,
+    },
+    '&[type=number]': {
+      '-webkit-appearance': 'textfield',
+      '-moz-appearance': 'textfield',
+    },
+  },
+}));
 
-export const NumberField = ({ renderProps, hasError, isDisabled }: NumberFieldProps) => {
-  const { onChange, ...restProps } = renderProps;
+export const NumberField = (props: TextFieldProps) => {
+  const styles = useStyles();
   return (
-    <NumberFormat
-      {...restProps}
-      fullWidth
-      customInput={TextField}
-      InputProps={{ margin: 'dense' }}
-      variant="outlined"
-      disabled={isDisabled}
-      allowLeadingZeros={false}
-      decimalScale={8}
-      allowNegative={false}
-      onValueChange={(values) => {
-        onChange(values.floatValue);
-      }}
-      error={hasError}
+    <TextField 
+    {...props}
+    variant="outlined"
+    type='number'
+    size='small'
+    inputProps={{
+      step: SATOSHI,
+      className: styles.input
+    }}
     />
   );
 };

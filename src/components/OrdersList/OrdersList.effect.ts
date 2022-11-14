@@ -1,5 +1,5 @@
 import { createStore, createEvent, createEffect } from 'effector';
-import { OrderExtended } from '../../models/Order';
+import { OrderExtended } from '../../models/order';
 import SpotTradeService from '../../services/SpotTradeService';
 import { addLog } from '../LogsDisplay/LogsDisplay.effect';
 import { cutEpsilon, getDecimalQuantity } from '../utils';

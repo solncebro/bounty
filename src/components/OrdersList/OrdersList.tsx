@@ -8,7 +8,7 @@ import { $Orders, getOrdersFx, resetOrders } from './OrdersList.effect';
 import { useStore } from 'effector-react';
 import { addLog } from '../LogsDisplay/LogsDisplay.effect';
 import SpotTradeService from '../../services/SpotTradeService';
-import { OrderExtended } from '../../models/Order';
+import { OrderExtended } from '../../models/order';
 import { OrderStatusEnum } from '../../constants/Binance/OrderEnums';
 import { $Application } from '../App/App.effect';
 

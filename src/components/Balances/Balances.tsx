@@ -5,6 +5,7 @@ import { $Balances, getBalanceFx, resetBalances } from './Balances.effects';
 import { useStore } from 'effector-react';
 import { StyledTableRow } from '../shared/StyledTableRow';
 import { StyledTableCell } from '../shared/StyledTableCell';
+import { shortNumberFormatter } from '../utils';
 
 const useStyles = makeStyles((theme: Theme) => ({
   tableContainer: {
@@ -30,8 +31,8 @@ const BalanceList = () => {
       $balances.map(({ asset, summary, free }) => (
         <StyledTableRow key={asset}>
           <StyledTableCell align="center">{asset}</StyledTableCell>
-          <StyledTableCell align="center">{summary}</StyledTableCell>
-          <StyledTableCell align="center">{free}</StyledTableCell>
+          <StyledTableCell align="center">{shortNumberFormatter(summary)}</StyledTableCell>
+          <StyledTableCell align="center">{shortNumberFormatter(free)}</StyledTableCell>
         </StyledTableRow>
       )),
     [$balances]

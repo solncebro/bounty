@@ -1,6 +1,6 @@
 import { createEvent, createStore } from 'effector';
 import { OrderSideEnum } from '../../constants/Binance/OrderEnums';
-import { PreOrder } from '../../models/Order';
+import { PreOrder } from '../../models/order';
 
 interface MultiOrdersProps {
   preOrders: PreOrder[];
